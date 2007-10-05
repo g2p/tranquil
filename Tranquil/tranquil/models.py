@@ -23,8 +23,6 @@ class Importer(object):
 		self.tables = None
 		self.objects = None
 		dispatcher.connect(self.cache_model,signal=signals.class_prepared)
-		#for model in get_models():
-		#	self.cache_model(sender=model)
 
 	def find_module(self,fullname,path=None):
 		if fullname.startswith('tranquil.models.'):

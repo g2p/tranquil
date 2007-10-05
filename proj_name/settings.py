@@ -79,11 +79,11 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-	'tranquil',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
 	'django.contrib.admin',
 	'proj_name.app_name',
+	'tranquil',
 )
