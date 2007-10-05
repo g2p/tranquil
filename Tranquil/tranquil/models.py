@@ -34,20 +34,16 @@ class Importer(object):
 		return None
 	
 	def load_module(self,fullname):
-		print 'MODULE: %s' % fullname
 		if self.tables is None:
 			( self.tables, self.objects ) = translate( self.meta, self.cache )
 		if sys.modules.get( fullname ):
 			return sys.modules[fullname]
-		print 'LOADING: %s' % fullname
 		mod = sys.modules[fullname] = new.module(fullname)
 		mod.__file__ = 'tranquil: %s' % fullname
 		mod.__loader__ = self
 		app = fullname.replace( 'tranquil.models.', '' )
-		print self.objects.get( app, 'Not here!' )
 		if self.objects.get( app ) is not None:
 			for obj in self.objects[app]:
-				print 'APP: %s TYPE: %s' % ( app, obj.__name__ )
 				setattr( mod, obj.__name__, obj )
 		return mod
 
@@ -56,6 +52,5 @@ class Importer(object):
 		if app not in self.apps:
 			self.apps.add( app )
 		table = sender._meta.db_table
-		print 'APP: %s TABLE: %s' % ( app, table )
 		self.cache[table] = sender	
 	

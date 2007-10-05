@@ -11,16 +11,13 @@ def stringify(table):
 	return ret
 
 def translate( meta, models ):
-	print models
 	sa_tables = {}
 	sa_objects = {}
 	for tbl in meta.table_iterator():
 		if str( tbl ) in models:
-			print 'HAS MODEL: %s' % tbl
 			app = models[str(tbl)]._meta.app_label
 			obj = models[str(tbl)]._meta.object_name
 		else:
-			print 'DYNAMIC: %s' % tbl
 			app = getattr( settings, 'NO_MODEL_MODULE', 'dyn' )
 			obj = stringify( str( tbl ) )
 		if sa_objects.get( app ) is None:
