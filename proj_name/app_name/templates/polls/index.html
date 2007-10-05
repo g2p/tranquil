@@ -1,0 +1,11 @@
+<html>
+	<body>
+		{% block content %}
+		<ul>
+			{% for poll in polls %}
+				<li><a href="{% url detail poll.id %}">{{ poll.question }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endblock content %}
+	</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends "polls/index.html" %}
+
+{% block content %}
+	<h2>{{ poll.question }}</h2>
+	<ul>
+		{% for choice in choices %}
+			<li>{{ choice.choice }} : {{ choice.votes }}</li>
+		{% endfor %}
+	</ul>
+	<a href="{% url root %}">Polls Index</a>
+{% endblock content %}
