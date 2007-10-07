@@ -9,8 +9,7 @@ sys.path.insert( 0, '/usr/local/src/tranquil/' )
 os.environ['DJANGO_SETTINGS_MODULE'] = 'proj_name.settings'
 
 from django.core.management import execute_manager
-
-sys.argv[1] = 'validate'
+sys.argv = [ './manage.py', 'validate' ]
 class ModelTest(unittest.TestCase):
 	def test(self):
 		import proj_name.settings
