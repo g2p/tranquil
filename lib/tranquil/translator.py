@@ -1,5 +1,4 @@
 
-from pprint import pprint
 from inspect import getmembers
 
 from django.conf import settings
@@ -11,6 +10,10 @@ from sqlalchemy.orm import backref, compile_mappers, mapper, relation
 
 DEFAULT_NO_MODEL='dyn'
 
+class ORMObject(object):
+	def __init__(self,**kwargs):
+		for arg in kwargs:
+			setattr(self,arg,kwargs[arg])
 
 class Relation(object):
 	def __init__(self,model,field):
@@ -72,6 +75,7 @@ class Relation(object):
 		to = tables[self.get_m2m_table()]
 		fcol = getattr( fr.c, self.model._meta.pk.get_attname() )
 		tcol = getattr( to.c, self.field._get_m2m_column_name( related ) )
+		print '%s %s' % ( fcol, tcol )
 		kwargs['primaryjoin'] = fcol==tcol
 		kwargs = self.add_fkey( kwargs, fcol )
 		#kwargs = self.add_fkey( kwargs, tcol )
@@ -79,6 +83,7 @@ class Relation(object):
 		to = mt_map[self.field.rel.to]
 		fcol = getattr( fr.c, self.field._get_m2m_reverse_name( related ) )
 		tcol = getattr( to.c, self.field.rel.to._meta.pk.get_attname() )
+		print "%s %s" % ( fcol, tcol )
 		kwargs['secondaryjoin'] = fcol==tcol
 		kwargs = self.add_fkey( kwargs, fcol )
 		#kwargs = self.add_fkey( kwargs, tcol )
@@ -107,7 +112,7 @@ class Translator(object):
 				obj = self.stringify( tname )
 			if self.categorized.get( app ) is None:
 				self.categorized[app] = []
-			self.objects[tname] = type( obj, ( object, ), {} )
+			self.objects[tname] = type( obj, ( ORMObject, ), {} )
 			self.categorized[app].append( self.objects[tname] )
 			if model is not None:
 				self.mt_map[model] = table
@@ -133,13 +138,12 @@ class Translator(object):
 	
 	def map(self):
 		for table in self.tables:
-			print '\n%s' % table
 			props = {}
 			if table in self.models and self.models[table] in self.relations:
 				model = self.models[table]
 				props = {}
 				for rel in self.relations[model]:
-					print 'TO: %s' % self.mo_map[rel.field.rel.to]
+					if table == 'app_name_choice': print "%s.%s" % ( rel.model, rel.field )
 					props[rel.field.name] = relation( self.mo_map[rel.field.rel.to],
 														**rel.props( self.tables, self.mt_map ) )
 			if len( props ) > 0:
