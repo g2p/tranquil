@@ -1,9 +1,7 @@
 import re
-#from django.core.exceptions import ImproperlyConfigured
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from tranquil.models import Importer
-
 
 __all__ = ( 'engine', 'meta', 'Session', )
 
