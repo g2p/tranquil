@@ -4,9 +4,11 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 
+from sqlalchemy.orm import eagerload
 from tranquil.models.app_name import Poll, Choice
 
 def index(request):
+	print Poll
 	polls = request.sa.query(Poll)
 	return render_to_response( 'polls/index.html', { 'polls': polls } )
 
@@ -16,9 +18,8 @@ def detail(request,poll_id):
 	return render_to_response( 'polls/detail.html', { 'poll': poll, 'choices': choices } )
 
 def results(request,poll_id):
-	poll = request.sa.query(Poll).filter(Poll.id==poll_id).one()
-	choices = request.sa.query(Choice).filter_by( poll_id=poll_id )
-	return render_to_response( 'polls/results.html', { 'poll': poll, 'choices': choices } )
+	poll = request.sa.query(Poll).options(eagerload('choices')).filter_by(id=poll_id).one()
+	return render_to_response( 'polls/results.html', { 'poll': poll } )
 
 def vote(request,poll_id,choice_id):
 	choice = request.sa.query(Choice).filter_by(poll_id=poll_id).filter_by(id=choice_id).one() 

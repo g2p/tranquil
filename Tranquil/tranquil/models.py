@@ -11,17 +11,16 @@ from django.db.models.loading import get_models
 from django.dispatch import dispatcher
 from django.utils.encoding import force_unicode
 
-from tranquil.translator import translate
+from tranquil.translator import Translator, DEFAULT_NO_MODEL
 
 class Importer(object):
 	def __init__(self,meta):
 		self.meta = meta
 		sys.meta_path.append( self )
 		self.apps = set()
-		self.apps.add( getattr( settings, 'NO_MODEL_MODULE', 'dyn' ) )
+		self.apps.add( getattr( settings, 'NO_MODEL_MODULE', DEFAULT_NO_MODEL ) )
 		self.cache = {}
-		self.tables = None
-		self.objects = None
+		self.trans = None
 		dispatcher.connect(self.cache_model,signal=signals.class_prepared)
 
 	def find_module(self,fullname,path=None):
@@ -32,16 +31,16 @@ class Importer(object):
 		return None
 	
 	def load_module(self,fullname):
-		if self.tables is None:
-			( self.tables, self.objects ) = translate( self.meta, self.cache )
+		if self.trans is None:
+			self.trans = Translator( self.meta, self.cache )
 		if sys.modules.get( fullname ):
 			return sys.modules[fullname]
 		mod = sys.modules[fullname] = new.module(fullname)
 		mod.__file__ = 'tranquil: %s' % fullname
 		mod.__loader__ = self
 		app = fullname.replace( 'tranquil.models.', '' )
-		if self.objects.get( app ) is not None:
-			for obj in self.objects[app]:
+		if self.trans.categorized.get( app ) is not None:
+			for obj in self.trans.categorized[app]:
 				setattr( mod, obj.__name__, obj )
 		return mod
 
