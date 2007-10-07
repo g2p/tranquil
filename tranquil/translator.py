@@ -56,17 +56,14 @@ class Relation(object):
 		tcol = getattr( to.c, self.field.rel.field_name )
 		kwargs['primaryjoin'] = fcol==tcol
 		kwargs = self.add_fkey( kwargs, fcol )
-		#kwargs = self.add_fkey( kwargs, tcol )
 		return kwargs
 	
 	def ForeignKey(self,kwargs,tables,mt_map):
 		return self.add_primary_join( kwargs, mt_map )
-		#return kwargs
 
 	def OneToOneField(self,kwargs, tables, mt_map):
 		kwargs['uselist'] = False
 		return self.add_primary_join( kwargs, mt_map )
-		#return kwargs
 	
 	def ManyToManyField(self,kwargs,tables,mt_map):
 		related = RelatedObject( self.field.rel.to, self.model, self.field )
@@ -75,18 +72,14 @@ class Relation(object):
 		to = tables[self.get_m2m_table()]
 		fcol = getattr( fr.c, self.model._meta.pk.get_attname() )
 		tcol = getattr( to.c, self.field._get_m2m_column_name( related ) )
-		print '%s %s' % ( fcol, tcol )
 		kwargs['primaryjoin'] = fcol==tcol
-		kwargs = self.add_fkey( kwargs, fcol )
-		#kwargs = self.add_fkey( kwargs, tcol )
+		kwargs = self.add_fkey( kwargs, tcol )
 		fr = to
 		to = mt_map[self.field.rel.to]
 		fcol = getattr( fr.c, self.field._get_m2m_reverse_name( related ) )
 		tcol = getattr( to.c, self.field.rel.to._meta.pk.get_attname() )
-		print "%s %s" % ( fcol, tcol )
 		kwargs['secondaryjoin'] = fcol==tcol
 		kwargs = self.add_fkey( kwargs, fcol )
-		#kwargs = self.add_fkey( kwargs, tcol )
 		return kwargs
 
 class Translator(object):
@@ -143,7 +136,6 @@ class Translator(object):
 				model = self.models[table]
 				props = {}
 				for rel in self.relations[model]:
-					if table == 'app_name_choice': print "%s.%s" % ( rel.model, rel.field )
 					props[rel.field.name] = relation( self.mo_map[rel.field.rel.to],
 														**rel.props( self.tables, self.mt_map ) )
 			if len( props ) > 0:

@@ -25,9 +25,7 @@ class ModelTest(unittest.TestCase):
 	def clear(self):
 		sess = Session()
 		for c in sess.query(Choice):
-			print dir( c )
 			sess.delete(c)
-		sess.commit()
 		for p in sess.query(Poll):
 			sess.delete(p)
 		sess.commit()
@@ -41,6 +39,9 @@ class ModelTest(unittest.TestCase):
 		sess.save( green )
 		sess.commit()
 		sess = Session()
-		polls = sess.query(Poll)
+		polls = sess.query(Poll).all()
 		self.assertEqual( len( polls ), 1 )
+		self.assertEqual( polls[0].question, 'Do you like green eggs and ham?' )
 		self.assertEqual( len( polls[0].choice_set ), 2 )
+		self.assertEqual( polls[0].choice_set[0].choice in ['Yes', 'No'], True )
+		self.assertEqual( polls[0].choice_set[1].choice in ['Yes', 'No'], True )
