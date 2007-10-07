@@ -1,7 +1,4 @@
 
-__all__ = ( '__path__', 'Importer' )
-__path__ = 'tranquil.models'
-
 import new
 import sys
 
@@ -12,6 +9,10 @@ from django.dispatch import dispatcher
 from django.utils.encoding import force_unicode
 
 from tranquil.translator import Translator, DEFAULT_NO_MODEL
+
+__all__ = ( '__path__', 'Importer' )
+__path__ = 'tranquil.models'
+
 
 class Importer(object):
 	def __init__(self,meta):

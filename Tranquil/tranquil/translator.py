@@ -1,3 +1,4 @@
+
 from pprint import pprint
 from inspect import getmembers
 
@@ -6,9 +7,10 @@ from django.db.models.related import RelatedObject
 from django.db.models.fields.related import RelatedField
 
 from sqlalchemy import Table
-from sqlalchemy.orm import mapper, relation
+from sqlalchemy.orm import backref, compile_mappers, mapper, relation
 
 DEFAULT_NO_MODEL='dyn'
+
 
 class Relation(object):
 	def __init__(self,model,field):
@@ -31,17 +33,17 @@ class Relation(object):
 	def add_fkey(self,kwargs,column):
 		if kwargs.get( 'foreign_keys' ) is None:
 			kwargs['foreign_keys'] = []
-		for fkey in column.foreign_keys:
-			print 'ADDING FKEY: %s' % fkey
-			kwargs['foreign_keys'].append( fkey )
+		kwargs['foreign_keys'].append( column )
 		return kwargs
 	
 	def props(self,tables,mt_map):
 		kwargs = {}
-		kwargs['backref'] = self.get_backref()
 		fn = getattr( self, self.field.__class__.__name__ )
 		kwargs = fn( kwargs, tables, mt_map )
-		print kwargs
+		brefargs = kwargs.copy()
+		if brefargs.get( 'secondary' ) is not None:
+			del brefargs['secondary']
+		kwargs['backref'] = backref( self.get_backref(), **brefargs )
 		return kwargs
 	
 	def add_primary_join(self,kwargs,mt_map):
@@ -56,10 +58,12 @@ class Relation(object):
 	
 	def ForeignKey(self,kwargs,tables,mt_map):
 		return self.add_primary_join( kwargs, mt_map )
-		
+		#return kwargs
+
 	def OneToOneField(self,kwargs, tables, mt_map):
 		kwargs['uselist'] = False
 		return self.add_primary_join( kwargs, mt_map )
+		#return kwargs
 	
 	def ManyToManyField(self,kwargs,tables,mt_map):
 		related = RelatedObject( self.field.rel.to, self.model, self.field )
@@ -108,13 +112,7 @@ class Translator(object):
 			if model is not None:
 				self.mt_map[model] = table
 				self.mo_map[model] = self.objects[tname]
-		try:
-			self.map()
-		except:
-			import sys, traceback
-			print '\nTrace:\n======\n'
-			traceback.print_tb( sys.exc_info()[2] )
-			raise
+		self.map()
 
 	def stringify(self,table):
 		ret = ''
@@ -141,9 +139,11 @@ class Translator(object):
 				model = self.models[table]
 				props = {}
 				for rel in self.relations[model]:
-					props[rel.field.name] = relation( self.mo_map[rel.model], **rel.props( self.tables, self.mt_map ) )
-			print props
+					print 'TO: %s' % self.mo_map[rel.field.rel.to]
+					props[rel.field.name] = relation( self.mo_map[rel.field.rel.to],
+														**rel.props( self.tables, self.mt_map ) )
 			if len( props ) > 0:
 				mapper(self.objects[table],self.tables[table],properties=props)
 			else:
 				mapper(self.objects[table],self.tables[table])
+		compile_mappers()

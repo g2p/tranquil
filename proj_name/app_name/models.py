@@ -15,9 +15,7 @@ class Tag(models.Model):
 
 class Choice(models.Model):
 	poll = models.ForeignKey(Poll)
-	other = models.ForeignKey(Poll,related_name='other_set')
 	tags = models.ManyToManyField(Tag)
-	test = models.OneToOneField( Tag, related_name='test_set' )
 	choice = models.CharField(max_length=200)
 	votes = models.IntegerField()
 
