@@ -7,8 +7,24 @@ from django.db.models.fields.related import RelatedField
 
 from sqlalchemy import Table
 from sqlalchemy.orm import backref, compile_mappers, mapper, relation
+from sqlalchemy.orm.mapper import Mapper
 
 DEFAULT_NO_MODEL='dyn'
+
+def load_custom(meta,tables):
+	mappers = {}
+	for app in settings.INSTALLED_APPS:
+		mod = __import__( app, {}, {}, [ 'alchemy', ] )
+		if not hasattr( mod, 'alchemy' ):
+			continue
+		for obj in mod.alchemy.__dict__:
+			attr = getattr( mod.alchemy, obj )
+			if isinstance( attr, Table ):
+				meta.remove( tables[ str( attr ) ] )
+				tables[str( attr )] = attr.tometadata(meta)
+			elif isinstance( attr, Mapper ):
+				mappers[attr.local_table] = attr
+	return ( tables, mappers )
 
 class ORMObject(object):
 	def __init__(self,**kwargs):
@@ -91,10 +107,12 @@ class Translator(object):
 		self.categorized = {}
 		self.mt_map = {}
 		self.mo_map = {}
-		self.relations = self.backreferences()
 		for table in meta.table_iterator():
-			tname = str( table )
-			self.tables[tname] = table
+			self.tables[ str(table) ] = table
+		( self.tables, self.mappers ) = load_custom( self.meta, self.tables )
+		self.relations = self.backreferences()
+		for tname in self.tables:
+			table = self.tables[tname]
 			if tname in models:
 				model = models[tname]
 				app = model._meta.app_label
@@ -131,6 +149,8 @@ class Translator(object):
 	
 	def map(self):
 		for table in self.tables:
+			if table in self.mappers:
+				continue
 			props = {}
 			if table in self.models and self.models[table] in self.relations:
 				model = self.models[table]

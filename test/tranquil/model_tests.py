@@ -11,6 +11,8 @@ from tranquil import Session
 from tranquil.models.app_name import Poll, Choice
 from tranquil.translator import ORMObject
 
+from proj_name.app_name.alchemy import User
+
 class ModelTest(unittest.TestCase):
 	def ORMObject_test(self):
 		obj = ORMObject(name='test')
@@ -39,3 +41,8 @@ class ModelTest(unittest.TestCase):
 		self.assertEqual( len( polls[0].choice_set ), 2 )
 		self.assertEqual( polls[0].choice_set[0].choice in ['Yes', 'No'], True )
 		self.assertEqual( polls[0].choice_set[1].choice in ['Yes', 'No'], True )
+	
+	def custom_test(self):
+		sess = Session()
+		me = sess.query(User).filter_by(username='davisp').one()
+		self.assertEqual( me.name(), 'username=davisp' )
