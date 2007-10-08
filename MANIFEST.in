@@ -1,4 +1,7 @@
 include setup.py
 include MANIFEST.in
-recursive-include neb *.py
+include VERSION
+include nose.cfg
+recursive-include tranquil *.py
+recursive-include proj_name *.py *.html
 recursive-include tests *.py
