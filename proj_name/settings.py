@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
-#CHAOS:
-NO_MODEL_MODULE='dyn'
+#Tranquil:
+TRANQ_NO_MODEL_MODULE='dyn'
 
 # Django settings for example project.
 

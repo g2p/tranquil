@@ -20,7 +20,7 @@ class Importer(object):
 		self.apps = set()
 		self.cache = {}
 		self.trans = None
-		self.no_model = getattr( settings, 'NO_MODEL_MODULE', DEFAULT_NO_MODEL )
+		self.no_model = getattr( settings, 'TRANQ_NO_MODEL_MODULE', DEFAULT_NO_MODEL )
 		dispatcher.connect(self.cache_model,signal=signals.class_prepared)
 
 	def find_module(self,fullname,path=None):

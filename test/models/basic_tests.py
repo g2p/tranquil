@@ -46,3 +46,4 @@ class ModelTest(unittest.TestCase):
 		sess = Session()
 		me = sess.query(User).filter_by(username='davisp').one()
 		self.assertEqual( me.name(), 'username=davisp' )
+

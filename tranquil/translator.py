@@ -107,6 +107,7 @@ class Translator(object):
 		self.categorized = {}
 		self.mt_map = {}
 		self.mo_map = {}
+		self.use_django_models = getattr( settings, 'TRANQ_USE_DJANGO_MODELS', False )
 		for table in meta.table_iterator():
 			self.tables[ str(table) ] = table
 		( self.tables, self.mappers ) = load_custom( self.meta, self.tables )
@@ -119,11 +120,14 @@ class Translator(object):
 				obj = model._meta.object_name
 			else:
 				model = None
-				app = getattr( settings, 'NO_MODEL_MODULE', DEFAULT_NO_MODEL )
+				app = getattr( settings, 'TRANQ_NO_MODEL_MODULE', DEFAULT_NO_MODEL )
 				obj = self.stringify( tname )
 			if self.categorized.get( app ) is None:
 				self.categorized[app] = []
-			self.objects[tname] = type( obj, ( ORMObject, ), {} )
+			if self.use_django_models and model and model is not None:
+				self.objects[tname] = model
+			else:
+				self.objects[tname] = type( obj, ( ORMObject, ), {} )
 			self.categorized[app].append( self.objects[tname] )
 			if model is not None:
 				self.mt_map[model] = table
