@@ -1,0 +1,4 @@
+include setup.py
+include MANIFEST.in
+recursive-include neb *.py
+recursive-include tests *.py
