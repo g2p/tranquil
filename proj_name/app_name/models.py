@@ -24,3 +24,11 @@ class Choice(models.Model):
 	
 	def __unicode__(self):
 		return "<Choice '%s'>" % self.choice
+
+class SelfRef(models.Model):
+	parent = models.ForeignKey('self',null=True)
+	name = models.CharField(max_length=50)
+
+class MultiSelfRef(models.Model):
+	name = models.CharField(max_length=50)
+	ref = models.ManyToManyField('self')

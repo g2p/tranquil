@@ -1,4 +1,5 @@
 
+from pprint import pprint
 from inspect import getmembers
 
 from django.conf import settings
@@ -37,12 +38,14 @@ class Relation(object):
 		self.field = field
 	
 	def get_backref(self):
+		ret = ''
 		if self.field.rel.multiple:
 			if getattr( self.field.rel, 'symmetrical', False ) and self.model == self.field.rel.to:
-				return None
-			return self.field.rel.related_name or ( self.model._meta.object_name.lower() + '_set' )
+				ret = None
+			ret = self.field.rel.related_name or ( self.model._meta.object_name.lower() + '_set' )
 		else:
-			return self.field.rel.related_name or ( self.model._meta.object_name.lower() )
+			ret = self.field.rel.related_name or ( self.model._meta.object_name.lower() )
+		return ret
 	
 	def get_m2m_table(self):
 		if self.field.rel.multiple:
@@ -56,13 +59,34 @@ class Relation(object):
 		return kwargs
 	
 	def props(self,tables,mt_map):
+		#print '\nMODEL: %s' % self.model.__name__
 		kwargs = {}
 		fn = getattr( self, self.field.__class__.__name__ )
 		kwargs = fn( kwargs, tables, mt_map )
 		brefargs = kwargs.copy()
 		if brefargs.get( 'secondary' ) is not None:
 			del brefargs['secondary']
+		#pprint( brefargs )
+		brefargs = self.switch_joins( brefargs )
 		kwargs['backref'] = backref( self.get_backref(), **brefargs )
+		kwargs = self.add_remote_side( kwargs, mt_map )
+		#pprint( kwargs )
+		return kwargs
+	
+	def switch_joins(self,kwargs):
+		if self.field.__class__.__name__ != 'ManyToManyField':
+			return kwargs
+		prim = kwargs['primaryjoin']
+		kwargs['primaryjoin'] = kwargs['secondaryjoin']
+		kwargs['secondaryjoin'] = prim
+		return kwargs
+	
+	def add_remote_side(self,kwargs,mt_map):
+		if self.model != self.field.rel.to or self.field.__class__.__name__ == 'ManyToManyField':
+			return kwargs
+		to = mt_map[self.field.rel.to]
+		tcol = getattr( to.c, self.field.rel.field_name )
+		kwargs['remote_side'] = [ tcol ]
 		return kwargs
 	
 	def add_primary_join(self,kwargs,mt_map):
