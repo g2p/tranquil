@@ -21,7 +21,7 @@ class Importer(object):
 		self.cache = {}
 		self.trans = None
 		self.no_model = getattr( settings, 'TRANQ_NO_MODEL_MODULE', DEFAULT_NO_MODEL )
-		dispatcher.connect(self.cache_model,signal=signals.class_prepared)
+		signals.class_prepared.connect(self.cache_model)
 
 	def find_module(self,fullname,path=None):
 		if len( self.apps ) == 0:
@@ -48,7 +48,7 @@ class Importer(object):
 				setattr( mod, obj.__name__, obj )
 		return mod
 
-	def cache_model(self,sender=None):
+	def cache_model(self,sender,**kwargs):
 		app = sender._meta.app_label
 		if app not in self.apps:
 			self.apps.add( app )
