@@ -168,7 +168,7 @@ class Translator(object):
 		rels = {}
 		for name in self.models:
 			model = self.models[name]
-			for field in model._meta.fields + model._meta.many_to_many:
+			for field in model._meta.local_fields + model._meta.local_many_to_many:
 				if field.rel:
 					if rels.get( model ) is None:
 						rels[model] = []
