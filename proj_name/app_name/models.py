@@ -32,3 +32,7 @@ class SelfRef(models.Model):
 class MultiSelfRef(models.Model):
 	name = models.CharField(max_length=50)
 	ref = models.ManyToManyField('self')
+
+class PositionedTag(Tag):
+	position = models.IntegerField()
+
