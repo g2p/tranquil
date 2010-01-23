@@ -132,7 +132,7 @@ class Translator(object):
 		self.mt_map = {}
 		self.mo_map = {}
 		self.use_django_models = getattr( settings, 'TRANQ_USE_DJANGO_MODELS', False )
-		for table in meta.table_iterator():
+		for table in meta.sorted_tables:
 			self.tables[ str(table) ] = table
 		( self.tables, self.mappers ) = load_custom( self.meta, self.tables )
 		self.relations = self.backreferences()
