@@ -16,8 +16,8 @@ class EngineCache(object):
 	_mappings = {
 		'sqlite3': 'sqlite',
 		'mysql': 'mysql',
-		'postgresql': 'postgres',
-		'postgresql_psycopg2': 'postgres',
+		'postgresql': 'postgresql',
+		'postgresql_psycopg2': 'postgresql+psycopg2',
 		'oracle': 'oracle',
 	}
 	
