@@ -48,7 +48,7 @@ class EngineCache(object):
 					url = re.sub( '{%s}' % p, options[p], url )
 			self.engine = create_engine( url )
 		self.meta = MetaData(bind=self.engine,reflect=True)
-		self.Session = sessionmaker( bind=self.engine, autoflush=True, transactional=True )
+		self.Session = sessionmaker( bind=self.engine, autoflush=True, autocommit=False )
 		self.importer = Importer(self.meta)
 
 cache = EngineCache()
